@@ -37,7 +37,13 @@ public class Book {
     @Column(nullable = false)
     private String author;
 
+    private String description;
+
     public void changePrice(int price) {
         this.price = price;
+    }
+
+    public void changeDescription(String description) {
+        this.description = description;
     }
 }

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" layout:decorate="~{layouts/layout}">
+  <div layout:fragment="content">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title fw-semibold mb-4">도서상세 수정</h5>
+        <div class="card">
+          <div class="card-body">
+            <form action="" method="post">
+              <div class="mb-3">
+                <label for="isbn" class="form-label">isbn</label>
+                <input type="text" class="form-control" id="isbn" th:value="${dto.isbn}" name="isbn" readonly />
+              </div>
+              <div class="mb-3">
+                <label for="title" class="form-label">title</label>
+                <input type="text" class="form-control" id="title" th:value="${dto.title}" name="title" readonly />
+              </div>
+              <div class="mb-3">
+                <label for="price" class="form-label">price</label>
+                <input type="number" class="form-control" id="price" th:value="${dto.price}" name="price" />
+              </div>
+              <div class="mb-3">
+                <label for="author" class="form-label">author</label>
+                <input type="text" class="form-control" id="author" th:value="${dto.author}" name="author" />
+              </div>
+              <div class="mb-3">
+                <label for="description" class="form-label">DESCRIPTION</label>
+                <textarea class="form-control" id="description" name="description" rows="3">[[${dto.description}]]</textarea>
+              </div>
+              <input type="hidden" name="id" th:value="${dto.id}" />
+              <button type="submit" class="btn btn-success">수정</button>
+              <button type="button" class="btn btn-danger">삭제</button>
+              <a type="button" class="btn btn-primary" th:href="@{/book/list}">목록</a>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <th:block layout:fragment="script">
+    <script th:src="@{/js/modify.js}"></script>
+  </th:block>
+</html>

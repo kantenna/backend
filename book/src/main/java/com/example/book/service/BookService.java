@@ -21,10 +21,10 @@ public class BookService {
 
     // crud 메서드 호출하는 서비스 메서드 작성
 
-    public Long create(BookDTO dto){
+    public String create(BookDTO dto){
         // bookDTO => entity 변경
         Book book = modelMapper.map(dto, Book.class);
-        return bookRepository.save(book).getId();
+        return bookRepository.save(book).getTitle();
     }
 
     // R(하나만 조회, 여러 개 조회)
@@ -62,10 +62,18 @@ public class BookService {
     public Long update(BookDTO upDto){
         Book book = bookRepository.findById(upDto.getId()).orElseThrow();
         book.changePrice(upDto.getPrice());
+        book.changeDescription(upDto.getDescription());
         return bookRepository.save(book).getId();
     }
 
     public void delete(Long id){
         bookRepository.deleteById(id);
+    }
+
+    public List<BookDTO> getList(){
+        return bookRepository.findAll()
+        .stream()
+        .map(book -> modelMapper.map(book, BookDTO.class))
+        .collect(Collectors.toList());
     }
 }
