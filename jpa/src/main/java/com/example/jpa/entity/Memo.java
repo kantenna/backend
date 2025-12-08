@@ -20,14 +20,13 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @ToString
-@EntityListeners(value = AuditingEntityListener.class)
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Getter
 @Table(name = "memotbl")
 @Entity
-public class Memo {
+public class Memo extends BaseEntity{
     // 테이블(memotbl) 데이터베이스 컬럼 : mno, memo_text, create_date, update_date
     // 클래스 필드명 == 테이블 컬럼명
     // 클래스 필드명 != 테이블 컬럼명(@Column(name=""))
@@ -39,12 +38,6 @@ public class Memo {
 
     @Column(nullable = false, name = "memoText")
     private String text; // db에서 memo_text로 자동으로 바뀜!
-
-    @CreatedDate
-    private LocalDateTime createDate;
-
-    @LastModifiedDate
-    private LocalDateTime updateDate;
 
     // text 수정 메소드
     public void changeText(String text) {

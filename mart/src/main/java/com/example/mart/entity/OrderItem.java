@@ -1,5 +1,4 @@
-package com.example.jpa.entity;
-
+package com.example.mart.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -7,40 +6,34 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-@ToString(exclude = "parent")
+@ToString(exclude = {"order", "item"})
 @Builder
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class Child {
-    
+public class OrderItem {
+    // id, orderPrice(주문가격), count(주문수량)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "CHILD_ID")
+    @Column
     private Long id;
 
     @Column(nullable = false)
-    private String name;
-    
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    private Parent parent;
+    private int orderPrice;
 
-    public void setParent(Parent parent) {
-        // 기본 부모 제거
-        if (this.parent != null) {
-            this.parent.getChilds().remove(this);
-        }
-        // 부모 연결
-        this.parent = parent;
-        // 부모에 child 객체 추가
-        parent.getChilds().add(this);
-    }
+    @Column(nullable = false)
+    private int count;
+
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    private Order order;
+    
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    private Item item;
 }

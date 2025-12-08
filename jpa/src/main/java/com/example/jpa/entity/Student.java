@@ -29,11 +29,10 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-@EntityListeners(value = AuditingEntityListener.class)
 @Builder
 @Table(name = "stutbl")
 @Entity // == 이 클래스는 테이블과 연동되어 있음
-public class Student {
+public class Student extends BaseEntity{
 
     // @GeneratedValue(strategy = GenerationType.AUTO) : default
     // @SequenceGenerator(name = "stu_seq_gen", sequenceName = "stu_seq", allocationSize = 1)
@@ -58,14 +57,14 @@ public class Student {
     @Column
     private Grade grade;
 
-    @CreationTimestamp // insert 시 자동으로 일자 삽입
-    private LocalDateTime createDateTime1;
+    // @CreationTimestamp // insert 시 자동으로 일자 삽입
+    // private LocalDateTime createDateTime1;
 
-    @CreatedDate // spring boot 설정 후 삽입
-    private LocalDateTime createDateTime2;
+    // @CreatedDate // spring boot 설정 후 삽입
+    // private LocalDateTime createDateTime2;
 
-    @LastModifiedDate
-    private LocalDateTime updateDateTime;
+    // @LastModifiedDate
+    // private LocalDateTime updateDateTime;
 
 
     public void changeName(String name) {
