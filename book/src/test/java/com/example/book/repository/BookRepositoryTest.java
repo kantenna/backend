@@ -12,7 +12,7 @@ import com.example.book.entity.Book;
 
 import jakarta.persistence.EntityNotFoundException;
 
-@Disabled
+
 @SpringBootTest
 public class BookRepositoryTest {
     
@@ -80,4 +80,21 @@ public class BookRepositoryTest {
         bookRepository.deleteById(2L);
     }
 
+    @Test
+    public void testFindBy(){
+        List<Book> list = bookRepository.findByAuthor("천인국0");
+        System.out.println("findByAuthor(천인국0)" + list);
+
+        list = bookRepository.findByAuthorEndingWith("2");
+        System.out.println("findByAuthorEndingWith(2)" + list);
+
+        list = bookRepository.findByAuthorStartingWith("정");
+        System.out.println("findByAuthorStartingWith(정)" + list);
+
+        list = bookRepository.findByAuthorContaining("5");
+        System.out.println("findByAuthorContaining(5)" + list);
+
+        list = bookRepository.findByPriceBetween(12000, 35000);
+        System.out.println("findByPriceBetween(5)" + list);
+    }
 }

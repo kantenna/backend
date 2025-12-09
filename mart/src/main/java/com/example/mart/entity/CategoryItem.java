@@ -1,4 +1,5 @@
 package com.example.mart.entity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -11,37 +12,27 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.ToString;
 
-@ToString(exclude = {"order", "item"})
+@ToString(exclude = {"category", "item"})
 @Builder
-@Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class OrderItem {
-    // id, orderPrice(주문가격), count(주문수량)
+public class CategoryItem {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column
+    @Column(name = "category_item_id")
     private Long id;
 
-    @Column(nullable = false)
-    private int orderPrice;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "category_id")
+    private Category category;
 
-    @Column(nullable = false)
-    private int count;
-
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private Order order;
-    
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "item_id")
     private Item item;
 
-    public void setOrder(Order order) {
-        this.order = order;
-    }
 }

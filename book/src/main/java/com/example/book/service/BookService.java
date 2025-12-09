@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.book.dto.BookDTO;
 import com.example.book.entity.Book;
@@ -12,6 +13,7 @@ import com.example.book.repository.BookRepository;
 
 import lombok.RequiredArgsConstructor;
 
+@Transactional
 @RequiredArgsConstructor
 @Service
 public class BookService {
@@ -29,6 +31,7 @@ public class BookService {
 
     // R(하나만 조회, 여러 개 조회)
     // 검색 : title => %자바% or isbn, id => 하나만 조회
+    @Transactional(readOnly = true)
     public List<BookDTO> readTitle(String title){
         List<Book> result = bookRepository.findByTitleContaining(title);
         
@@ -45,6 +48,7 @@ public class BookService {
         return list;
     }
 
+    @Transactional(readOnly = true)
     public BookDTO readIsbn(String isbn){
         Book book = bookRepository.findByIsbn(isbn).orElseThrow();
         
@@ -52,6 +56,7 @@ public class BookService {
         return modelMapper.map(book, BookDTO.class);
     }
 
+    @Transactional(readOnly = true)
     public BookDTO readId(Long id){
         Book book = bookRepository.findById(id).orElseThrow();
         
@@ -63,13 +68,15 @@ public class BookService {
         Book book = bookRepository.findById(upDto.getId()).orElseThrow();
         book.changePrice(upDto.getPrice());
         book.changeDescription(upDto.getDescription());
-        return bookRepository.save(book).getId();
+        // return bookRepository.save(book).getId();
+        return book.getId();
     }
 
     public void delete(Long id){
         bookRepository.deleteById(id);
     }
 
+    @Transactional(readOnly = true)
     public List<BookDTO> getList(){
         return bookRepository.findAll()
         .stream()

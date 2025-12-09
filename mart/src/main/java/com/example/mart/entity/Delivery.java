@@ -1,53 +1,50 @@
 package com.example.mart.entity;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.example.mart.entity.constant.DeliveryStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-@ToString(exclude = "orders")
+@ToString(exclude = {"order"})
 @Builder
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "mart_member")
-public class Member extends BaseEntity{
-    // id, name, city, street, zipcode
+public class Delivery extends BaseEntity{
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column
+    @Column(name = "delivery_id")
     private Long id;
 
     @Column(nullable = false)
-    private String name;
-    
-    @Column
     private String city;
 
-    @Column
+    @Column(nullable = false)
     private String street;
 
-    @Column
+    @Column(nullable = false)
     private String zipcode;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private DeliveryStatus deliveryStatus;
 
-    @Builder.Default
-    @OneToMany(mappedBy = "member")
-    private List<Order> orders = new ArrayList<>();
+    
+    // order : delivery => 1:1 관계
+    @OneToOne(mappedBy = "delivery")
+    private Order order;
 
-    public void changeCity(String city) {
-        this.city = city;
-    }
 }
