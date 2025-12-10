@@ -29,7 +29,8 @@ public class PageResultDTO<E> {
         this.pageRequestDTO = pageRequestDTO;
         this.totalCount = totalCount;
 
-        int end = (int)(Math.ceil(pageRequestDTO.getPage() / 10.0)) *10;
+        // 10.0 으로 안하면 소숫점 아래가 안나와서 안되더라
+        int end = (int) (Math.ceil(pageRequestDTO.getPage() / 10.0)) *10;
         int start = end - 9;
 
         int last = (int)(Math.ceil(totalCount/(double)pageRequestDTO.getSize()));
