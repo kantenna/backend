@@ -374,6 +374,5 @@ public class MartRepositoryTest {
         System.out.println(item);
         System.out.println(item.getCategoryItems());
     }
-
 }
 

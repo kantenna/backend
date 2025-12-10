@@ -2,6 +2,9 @@ package com.example.jpa.repository;
 
 import static org.mockito.ArgumentMatchers.intThat;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -55,6 +58,62 @@ public class BoardRepositoryTest {
 
     }
 
+    @Test
+    public void testFindBy(){
+        List<Board> list = boardRepository.findByTitle("Title1");
+        System.out.println("findByTitle(\"Title1\")"+list);
+        
+        list = boardRepository.findByContent("content2");
+        System.out.println("findByContent(\"content2\")"+list);
+        
+        list = boardRepository.findByTitleStartingWith("Title");
+        System.out.println("findByTitleStartingWith(\"Title\")"+list);
+        
+        list = boardRepository.findByTitleContainingAndIdGreaterThanOrderByIdDesc("tle", 5L);
+        System.out.println("findByTitleContainingAndIdGreaterThan(\"tle\", 5L)"+list);
+        
+        list = boardRepository.findByWriterContaining("6");
+        System.out.println("findByWriterContaining(\"6\")"+list);
+        
+        list = boardRepository.findByTitleContainingOrContentContaining("9", "8");
+        System.out.println("findByTitleContaingAndContentContaing(\"9\", \"8\")"+list);
+    }
 
+    @Test
+    public void testFindBy2(){
+        List<Board> list = boardRepository.findByTitle2("Title1");
+        System.out.println("findByTitle(\"Title1\")"+list);
+        
+        list = boardRepository.findByContent2("content2");
+        System.out.println("findByContent(\"content2\")"+list);
+        
+        list = boardRepository.findByTitleStartingWith2("Title");
+        System.out.println("findByTitleStartingWith(\"Title\")"+list);
+        
+        list = boardRepository.findByTitleContainingAndIdGreaterThanOrderByIdDesc2("tle", 5L);
+        System.out.println("findByTitleContainingAndIdGreaterThan(\"tle\", 5L)"+list);
+        
+        list = boardRepository.findByWriterContaining2("6");
+        System.out.println("findByWriterContaining(\"6\")"+list);
+        
+        list = boardRepository.findByTitleContainingOrContentContaining2("9", "8");
+        System.out.println("findByTitleContaingAndContentContaing(\"9\", \"8\")"+list);
+    }
 
+    @Test
+    public void testFindBy3(){
+        List<Board> list = boardRepository.findByTitleContainingAndIdGreaterThanOrderByIdDesc3("tle", 5L);
+        System.out.println("findByTitleContainingAndIdGreaterThan(\"tle\", 5L)"+list);
+    }
+
+    @Test
+    public void testFindBy4(){
+        List<Object[]> list = boardRepository.findByTitle3("Title");
+        for (Object[] objects : list) {
+            // System.out.println(Arrays.toString(objects));
+            String title = (String)objects[0];
+            String writer = (String)objects[1];
+            System.out.println(title +" "+ writer);
+        }
+    }
 }

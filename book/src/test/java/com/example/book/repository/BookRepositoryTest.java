@@ -7,12 +7,16 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import com.example.book.entity.Book;
+import com.example.book.entity.QBook;
 
 import jakarta.persistence.EntityNotFoundException;
 
-
+@Disabled
 @SpringBootTest
 public class BookRepositoryTest {
     
@@ -97,4 +101,43 @@ public class BookRepositoryTest {
         list = bookRepository.findByPriceBetween(12000, 35000);
         System.out.println("findByPriceBetween(5)" + list);
     }
+
+    @Test
+    public void pageTest(){
+        PageRequest pageRequest = PageRequest.of(0,20);
+        Page<Book> result = bookRepository.findAll(pageRequest);
+
+        System.out.println("Size " + result.getSize());
+        System.out.println("TotalPages " + result.getTotalPages());
+        System.out.println("TotalElements " + result.getTotalElements());
+        System.out.println("Content " + result.getContent());
+    }
+
+    // ---------------------------------------
+    // querydsl 라이브러리 추가 / QuerydslPredicateExecuter상속
+
+    @Test
+    public void querydslTest(){
+
+        QBook book = QBook.book;
+
+        //where b1_0.title=?
+        System.out.println(bookRepository.findAll(book.title.eq("title1")));
+        //where b1_0.title like %?%
+        System.out.println(bookRepository.findAll(book.title.contains("파워")));
+        //where b1_0.title like %?% and b1_0.id>?
+        System.out.println(bookRepository.findAll(book.title.contains("파워").and(book.id.gt(3L))));
+        
+        //where b1_0.title like %?% and b1_0.id>? order by id desc
+        System.out.println(bookRepository.findAll(book.title.contains("파워").and(book.id.gt(3L)), Sort.by("id").descending()));
+
+        // where author '%천%' or title '%파워%'
+        System.out.println(bookRepository.findAll(book.title.contains("파워").or(book.author.contains("천"))));
+
+        // bookRepository.findAll(Predicate predicate, Pageable pageable)
+        PageRequest pageRequest = PageRequest.of(0,20);
+        Page<Book> result = bookRepository.findAll(book.id.gt(0), pageRequest);
+
+    }
+
 }

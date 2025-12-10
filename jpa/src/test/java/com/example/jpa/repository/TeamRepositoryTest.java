@@ -1,6 +1,7 @@
 package com.example.jpa.repository;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -36,6 +37,7 @@ public class TeamRepositoryTest {
 
     // 기존 팀에 인원을 추가하기
     @Test
+    @Commit
     public void insertTest2(){
 
         // Team team = Team.builder().id(1L).build();
@@ -194,5 +196,51 @@ public class TeamRepositoryTest {
 
         // teamRepository.save(team);
         // dirty checking은 save 없이도 변화 감지
+    }
+
+    // @Query 테스트
+    @Transactional
+    @Test
+    public void testQuery(){
+        Team team = teamRepository.findById(3L).get();
+        List<Object[]> result = teamMemberRepository.findByMemberAndTeam(team);
+
+        for (Object[] objects : result) {
+            // System.out.println(Arrays.toString(objects));
+            TeamMember member = (TeamMember) objects[0];
+            Team team1 = (Team) objects[1];
+            System.out.println(member);
+            System.out.println(team1);
+        }
+    }
+
+    @Transactional
+    @Test
+    public void testQuery2(){
+
+        List<Object[]> result = teamMemberRepository.findByMemberAndTeam2(3L);
+
+        for (Object[] objects : result) {
+            // System.out.println(Arrays.toString(objects));
+            TeamMember member = (TeamMember) objects[0];
+            Team team1 = (Team) objects[1];
+            System.out.println(member);
+            System.out.println(team1);
+        }
+    }
+
+    @Transactional
+    @Test
+    public void testQuery3(){
+
+        List<Object[]> result = teamMemberRepository.findByMemberAndTeam3();
+
+        for (Object[] objects : result) {
+            // System.out.println(Arrays.toString(objects));
+            TeamMember member = (TeamMember) objects[0];
+            Team team1 = (Team) objects[1];
+            System.out.println(member);
+            System.out.println(team1);
+        }
     }
 }
