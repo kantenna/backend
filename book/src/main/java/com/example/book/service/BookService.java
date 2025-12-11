@@ -87,7 +87,7 @@ public class BookService {
         // pageNumber : 0으로 시작
         Pageable pageable = PageRequest.of(pageRequestDTO.getPage() -1, pageRequestDTO.getSize(), Sort.by("id").descending());
 
-        Page<Book> result = bookRepository.findAll(bookRepository.makePredicate(null, null), pageable);
+        Page<Book> result = bookRepository.findAll(bookRepository.makePredicate(pageRequestDTO.getType(), pageRequestDTO.getKeyword()), pageable);
 
         List<BookDTO> dtoList = result.get()
         .map(book -> modelMapper.map(book, BookDTO.class))
