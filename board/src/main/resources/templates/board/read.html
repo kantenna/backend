@@ -3,37 +3,53 @@
   <div layout:fragment="content">
     <div class="card">
       <div class="card-body">
-        <h5 class="card-title fw-semibold mb-4">도서상세</h5>
+        <h5 class="card-title fw-semibold mb-4">게시글상세</h5>
         <div class="card">
           <div class="card-body">
             <form action="" method="get">
               <div class="mb-3">
-                <label for="isbn" class="form-label">isbn</label>
-                <input type="text" class="form-control" id="isbn" th:value="${dto.isbn}" name="isbn" readonly />
+                <label for="bno" class="form-label">bno</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="bno"
+                  aria-describedby="bno"
+                  th:value="${dto.bno}"
+                  name="bno"
+                  readonly
+                />
               </div>
               <div class="mb-3">
                 <label for="title" class="form-label">title</label>
                 <input type="text" class="form-control" id="title" th:value="${dto.title}" name="title" readonly />
               </div>
               <div class="mb-3">
-                <label for="price" class="form-label">price</label>
-                <input type="number" class="form-control" id="price" th:value="${dto.price}" name="price" readonly />
+                <label for="content" class="form-label">content</label>
+                <textarea name="content" id="content" rows="10" class="form-control" readonly>
+[[${dto.content}]]</textarea
+                >
               </div>
               <div class="mb-3">
-                <label for="author" class="form-label">author</label>
-                <input type="text" class="form-control" id="author" th:value="${dto.author}" name="author" readonly />
-              </div>
-              <div class="mb-3">
-                <label for="description" class="form-label">DESCRIPTION</label>
-                <textarea class="form-control" id="description" name="description" rows="3" readonly>[[${dto.description}]]</textarea>
+                <label for="createDate" class="form-label">createDate</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="createDate"
+                  th:value="${#temporals.format(dto.createDate, 'yyyy-MM-dd HH:mm')}"
+                  name="createDate"
+                  readonly
+                />
               </div>
               <a
                 type="button"
                 class="btn btn-success"
-                th:href="@{/book/modify(id=${dto.id}, page=${pageRequestDTO.page}, size=${pageRequestDTO.size})}"
+                th:href="@{/board/modify(bno=${dto.bno}, page=${pageRequestDTO.page}, size=${pageRequestDTO.size})}"
                 >수정</a
               >
-              <a type="button" class="btn btn-primary" th:href="@{/book/list(id=${dto.id}, page=${pageRequestDTO.page}, size=${pageRequestDTO.size})}"
+              <a
+                type="button"
+                class="btn btn-primary"
+                th:href="@{/board/list(page=${pageRequestDTO.page}, size=${pageRequestDTO.size})}"
                 >목록</a
               >
               <!-- <input type="hidden" name="page" th:value="${pageRequestDTO.page}" /> -->

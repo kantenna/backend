@@ -1,12 +1,20 @@
 package com.example.board.repository;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.test.annotation.Commit;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.board.member.entity.Member;
 import com.example.board.member.repository.MemberRepository;
@@ -66,6 +74,99 @@ public class BoardRepositoryTest {
             Reply reply = Reply.builder().text("reply..."+i).replyer("guest"+i).board(board).build();
             replyRepository.save(reply);
         });
+    }
+
+    // board 읽기
+    @Transactional(readOnly = true)
+    @Test
+    public void readBoardTest(){
+
+        // [Board(bno=12, title=title...12, content=content...12), Member(email=user9@gmail.com, password=1111, name=user9)]
+        List<Board> list = boardRepository.findAll();
+        list.forEach(board -> {
+            System.out.println(board);
+            System.out.println(board.getWriter());
+        });
+
+    }
+
+    @Test
+    public void getBoardWithWriterListTest(){
+        
+        List<Object[]> result = boardRepository.getBoardWithWriterList();
+        for (Object[] objects : result) {
+            System.out.println(Arrays.toString(objects));
+        }
+
+    }
+    @Transactional(readOnly = true)
+    @Test
+    public void getBoardWithWriterTest(){
+
+        // JPA
+        Board board = boardRepository.findById(33L).get();
+        System.out.println(board);
+        // 댓글 가져오기
+        System.out.println(board.getReplies());
+
+    }
+
+    
+    @Test
+    public void getBoardWithWriterTest2(){
+
+        // JPQL(@Query)
+        List<Object[]> result = boardRepository.getBoardWithReply(33L);
+
+        // for (Object[] objects : result) {
+        //     System.out.println(Arrays.toString(objects));
+        // }
+        result.forEach(obj -> System.out.println(Arrays.toString(obj)));
+
+    }
+
+    @Test
+    public void getBoardWithReplyCountTest(){
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("bno").descending());
+
+        Page<Object[]> result =  boardRepository.getBoardWithReplyCount(pageable);
+        // for (Object[] objects : result) {
+        //     // System.out.println(Arrays.toString(objects));
+        //     Board board = (Board)objects[0];
+        //     Member member = (Member)objects[1];
+        //     Long replyCnt = (Long)objects[2];
+        //     System.out.println(board);
+        //     System.out.println(member);
+        //     System.out.println(replyCnt);
+        // }
+
+        // Stream<Object[]> data = result.get();
+        // Stream<Object[]> data2 = result.getContent().stream();
+
+        result.get().forEach(obj -> {
+            Board board = (Board)obj[0];
+            Member member = (Member)obj[1];
+            Long replyCnt = (Long)obj[2];
+        });
+
+        result.get().forEach(System.out::println);
+
+    }
+
+    @Test
+    public void getBoardByBnoTest(){
+        Object result = boardRepository.getBoardByBno(33L);
+        Object[] arr = (Object[]) result;
+        System.out.println(Arrays.toString(arr));
+    }
+
+    // delete 테스트
+    @Commit
+    @Transactional
+    @Test
+    public void deleteByBnoTest(){
+        replyRepository.deleteByBno(78L);
+        boardRepository.deleteById(78L);
     }
 
     // querydsl 테스트
