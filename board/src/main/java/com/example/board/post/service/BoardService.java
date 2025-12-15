@@ -5,6 +5,7 @@ import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -33,6 +34,20 @@ public class BoardService {
     private final ReplyRepository replyRepository;
 
     // crud
+    public Long create(BoardDTO dto) {
+        // 게시글 등록
+
+        Member member = Member.builder().email(dto.getWriterEmail()).build();
+
+        Board board = Board.builder()
+        .title(dto.getTitle())
+        .content(dto.getContent())
+        .writer(member)
+        .build();
+        return boardRepository.save(board).getBno();
+    }
+
+
     public void delete(BoardDTO dto){
         // 게시글 삭제
         // 자식으로 댓글
@@ -66,7 +81,10 @@ public class BoardService {
 
         Pageable pageable = PageRequest.of(requestDTO.getPage() -1, requestDTO.getSize(), Sort.by("bno").descending());
 
-        Page<Object[]> result = boardRepository.getBoardWithReplyCount(pageable);
+        // @Query 사용
+        // Page<Object[]> result = boardRepository.getBoardWithReplyCount(pageable);
+
+        Page<Object[]> result = boardRepository.list(requestDTO.getType(), requestDTO.getKeyword(), pageable);
         
         // 번호, 제목(댓글개수), 작성자, 작성일
         Function<Object[], BoardDTO> f = en -> entityToDto((Board)en[0], (Member)en[1], (long)en[2]);
@@ -86,10 +104,6 @@ public class BoardService {
     public void insert(BoardDTO dto){
 
     }
-
-    
-
-    
 
     // entity => dto
     private BoardDTO entityToDto(Board board, Member member, Long replyCnt){

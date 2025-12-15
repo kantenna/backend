@@ -2,6 +2,7 @@ package com.example.board.post.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -14,6 +15,9 @@ import com.example.board.post.dto.BoardDTO;
 import com.example.board.post.dto.PageRequestDTO;
 import com.example.board.post.dto.PageResultDTO;
 import com.example.board.post.service.BoardService;
+
+import jakarta.validation.Valid;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -25,6 +29,25 @@ import org.springframework.web.bind.annotation.RequestBody;
 public class PostController {
     
     private final BoardService boardService;
+
+    // 유효성 검증 + 데이터 도착
+    @GetMapping("/create")
+    public void getCreate(BoardDTO dto, PageRequestDTO pageRequestDTO) {
+        log.info("작성 폼 요청");
+    }
+
+    @PostMapping("/create")
+    public String postCreate(@Valid BoardDTO dto, BindingResult result, RedirectAttributes rttr) {
+        log.info("작성 {}", dto);
+
+        if (result.hasErrors()) {
+            return "/board/create";
+        }
+        Long bno = boardService.create(dto);
+
+        rttr.addFlashAttribute("msg", bno +"  번 게시글이 등록되었습니다.");
+        return "redirect:/board/list";
+    }
 
     @PostMapping("/remove")
     public String postDelete(BoardDTO dto, PageRequestDTO pageRequestDTO, RedirectAttributes rttr) {

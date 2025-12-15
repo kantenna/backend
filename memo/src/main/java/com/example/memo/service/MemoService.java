@@ -18,6 +18,7 @@ import com.example.memo.repository.MemoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
+
 @Transactional
 @RequiredArgsConstructor
 @Log4j2
