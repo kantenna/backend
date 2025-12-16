@@ -77,6 +77,16 @@ public class BoardRepositoryTest {
         });
     }
 
+    @Test
+    public void insertReplyTest2(){
+        Board board = Board.builder().bno(313L).build();
+        IntStream.rangeClosed(1, 15).forEach(i -> {
+
+            Reply reply = Reply.builder().text("reply..."+i).replyer("guest"+i).board(board).build();
+            replyRepository.save(reply);
+        });
+    }
+
     // board 읽기
     @Transactional(readOnly = true)
     @Test
