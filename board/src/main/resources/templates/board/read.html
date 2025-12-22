@@ -3,56 +3,55 @@
   <div layout:fragment="content">
     <div class="card">
       <div class="card-body">
-        <h5 class="card-title fw-semibold mb-4">게시글상세</h5>
+        <h5 class="card-title fw-semibold mb-4">게시글 조회</h5>
         <div class="card">
           <div class="card-body">
-            <form action="" method="get">
+            <form action="" method="post">
               <div class="mb-3">
-                <label for="bno" class="form-label">bno</label>
+                <label for="bno" class="form-label">BNO</label>
                 <input
                   type="text"
                   class="form-control"
                   id="bno"
                   aria-describedby="bno"
-                  th:value="${dto.bno}"
                   name="bno"
+                  th:value="${dto.bno}"
                   readonly
                 />
               </div>
               <div class="mb-3">
-                <label for="title" class="form-label">title</label>
-                <input type="text" class="form-control" id="title" th:value="${dto.title}" name="title" readonly />
+                <label for="title" class="form-label">TITLE</label>
+                <input type="text" class="form-control" id="title" name="title" th:value="${dto.title}" readonly />
               </div>
               <div class="mb-3">
-                <label for="content" class="form-label">content</label>
-                <textarea name="content" id="content" rows="10" class="form-control" readonly>
-[[${dto.content}]]</textarea
-                >
+                <label for="content" class="form-label">CONTENT</label>
+                <textarea name="content" id="content" rows="10" class="form-control">[[${dto.content}]]</textarea>
               </div>
               <div class="mb-3">
-                <label for="createDate" class="form-label">createDate</label>
+                <label for="createDate" class="form-label">CREATEDATE</label>
                 <input
                   type="text"
                   class="form-control"
                   id="createDate"
-                  th:value="${#temporals.format(dto.createDate, 'yyyy-MM-dd HH:mm')}"
                   name="createDate"
+                  th:value="${#temporals.format(dto.createDate, 'yyyy-MM-dd HH:mm')}"
                   readonly
                 />
               </div>
               <a
                 type="button"
                 class="btn btn-success"
-                th:href="@{/board/modify(bno=${dto.bno}, page=${pageRequestDTO.page}, size=${pageRequestDTO.size})}"
+                th:if="${dto.writerEmail} == ${#authentication.name}"
+                th:href="@{/board/modify(bno=${dto.bno},page=${pageRequestDTO.page},size=${pageRequestDTO.size})}"
                 >수정</a
               >
               <a
                 type="button"
                 class="btn btn-primary"
-                th:href="@{/board/list(page=${pageRequestDTO.page}, size=${pageRequestDTO.size})}"
+                th:href="@{/board/list(page=${pageRequestDTO.page},size=${pageRequestDTO.size})}"
                 >목록</a
               >
-              <!-- <input type="hidden" name="page" th:value="${pageRequestDTO.page}" /> -->
+              <!-- <input type="hidden" name="page" th:value="${requestDTO.page}" /> -->
             </form>
           </div>
         </div>
@@ -61,10 +60,20 @@
     <!-- 댓글 영역 -->
     <div class="card">
       <div class="card-body">
-        <form action="" method="post" id="replyform">
+        <form th:action="@{/replies/new}" method="post" id="replyForm" sec:authorize="isAuthenticated()">
           <input type="hidden" name="rno" />
+          <!-- 로그인 사용자의 아이디에 해당하는 이메일 -->
+          <input type="hidden" name="replyerEmail" th:value="${#authentication.name}" />
           <div class="mb-3">
-            <input type="text" class="form-control" id="replyer" name="replyer" placeholder="작성자" />
+            <input
+              type="text"
+              class="form-control"
+              id="replyerName"
+              name="replyerName"
+              placeholder="작성자"
+              th:value="${#authentication.principal.name}"
+              readonly
+            />
           </div>
           <div class="mb-3">
             <textarea name="text" id="text" rows="3" class="form-control" placeholder="댓글 작성"></textarea>
@@ -75,12 +84,7 @@
         <div class="replyList border px-2">
           <!-- <div class="d-flex justify-content-between my-2 border-bottom">
             <div class="p-3">
-              <img
-                th:src="@{/img/user.png}"
-                alt=""
-                class="rounded-circle mx-auto d-block"
-                style="width: 60px; height: 60px"
-              />
+              <img th:src="@{/img/user.png}" alt="" class="rounded-circle mx-auto d-block" style="width: 60px; height: 60px" />
             </div>
             <div class="flex-grow-1 align-self-center">
               <div>작성자</div>
@@ -88,7 +92,7 @@
                 <span class="fs-5">내용</span>
               </div>
               <div class="text-muted">
-                <span class="small">댓글 작성일</span>
+                <span class="small">댓글작성일</span>
               </div>
             </div>
 
@@ -106,17 +110,19 @@
     </div>
   </div>
   <th:block layout:fragment="script">
-    <!-- 페이지별 개별 javascript 작성 -->
     <script th:inline="javascript">
+
       let msg = [[${msg}]];
       const bno = [[${dto.bno}]];
-      console.log(msg);
+      // replyForm에서 CSRF값 가져오기
+      const csrfVal = document.querySelector("#replyForm").querySelector("[name='_csrf']").value;
+
       if (msg) {
-        Swal.fire({
-          title: msg,
-          icon: "success",
-          draggable: true,
-        });
+          Swal.fire({
+              title: msg,
+              icon: "success",
+              draggable: true
+          });
       }
     </script>
     <script th:src="@{/js/read.js}"></script>

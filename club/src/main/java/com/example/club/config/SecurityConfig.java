@@ -13,6 +13,9 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.RememberMeServices;
+import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
+import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices.RememberMeTokenAlgorithm;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import com.example.club.handler.LoginSuccessHandler;
@@ -23,13 +26,20 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 @Configuration // 스프링 설정 클래스
 public class SecurityConfig {
+
+    private final RememberMeServices rememberMeServices;
+
+    SecurityConfig(RememberMeServices rememberMeServices) {
+        this.rememberMeServices = rememberMeServices;
+    }
     // 시큐리티 설정 클래스
     
     @Bean // == 객체 생성
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
+    SecurityFilterChain securityFilterChain(HttpSecurity http, RememberMeServices rememberMeServices) throws Exception{
 
         http.authorizeHttpRequests(authorize -> authorize
             .requestMatchers("/", "/assets/**","/member/auth","/img/**").permitAll()
+            .requestMatchers("/member/register").permitAll()
             .requestMatchers("/member/**").hasRole("USER")
             .requestMatchers("/manager/**").hasAnyRole("MANAGER")
             .requestMatchers("/admin/**").hasAnyRole("ADMIN"))
@@ -42,9 +52,24 @@ public class SecurityConfig {
                 .logoutUrl("/member/logout") // 로그아웃 post
                 .logoutSuccessUrl("/") // 로그아웃 성공시
                 .invalidateHttpSession(true)
-                .deleteCookies("JSESSIONID"));
+                .deleteCookies("JSESSIONID"))
+            // 토큰 기반 처리(예전에는 db기반)
+            .rememberMe(remember -> remember.rememberMeServices(rememberMeServices));
 
         return http.build();
+    }
+
+    @Bean
+    RememberMeServices rememberMeServices(UserDetailsService userDetailsService){
+        // 토큰 생성용 알고리즘
+        RememberMeTokenAlgorithm eTokenAlgorithm = RememberMeTokenAlgorithm.SHA256;
+
+        TokenBasedRememberMeServices services = new TokenBasedRememberMeServices("mykey", userDetailsService, eTokenAlgorithm);
+        // 브라우저에서 넘어온 remember-me 쿠키 검증용 알고리즘
+        services.setMatchingAlgorithm(RememberMeTokenAlgorithm.MD5);
+        // 7일 유효기간
+        services.setTokenValiditySeconds(60*60*24*7);
+        return services;
     }
 
     @Bean

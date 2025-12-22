@@ -20,7 +20,9 @@ const loadReply = () => {
 
       data.forEach((reply) => {
         result += `
-        <div class="d-flex justify-content-between my-2 border-bottom reply-row" data-rno="${reply.rno}">
+        <div class="d-flex justify-content-between my-2 border-bottom reply-row" data-rno="${reply.rno}" data-email="${
+          reply.replyerEmail
+        }">
           <div class="p-3">
             <img
               src="/img/user.png"
@@ -30,7 +32,7 @@ const loadReply = () => {
           </div>
   
           <div class="flex-grow-1 align-self-center">
-            <div>${reply.replyer}</div>
+            <div>${reply.replyerName}</div>
             <div>
               <span class="fs-5">${reply.text}</span>
             </div>
@@ -62,19 +64,20 @@ const loadReply = () => {
 
 // 댓글 추가
 // 댓글 작성 클릭 시 == replyForm submit 발생 시
-document.querySelector("#replyform").addEventListener("submit", (e) => {
+document.querySelector("#replyForm").addEventListener("submit", (e) => {
   // submit 기능 중지
   e.preventDefault();
 
   const form = e.target;
   const rno = form.rno.value;
-  const reply = { rno: rno, text: form.text.value, replyer: form.replyer.value, bno: bno };
+  const reply = { rno: rno, text: form.text.value, replyerEmail: form.replyerEmail.value, bno: bno };
 
   if (!rno) {
     // new
     fetch(`${url}/new`, {
       method: "POST",
       headers: {
+        "X-CSRF-TOKEN": csrfVal,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(reply),
@@ -96,8 +99,8 @@ document.querySelector("#replyform").addEventListener("submit", (e) => {
             draggable: true,
           });
         }
-        document.querySelector("#replyform #replyer").value = "";
-        document.querySelector("#replyform #text").value = "";
+
+        form.text.value = "";
         // 댓글 가져오기
         loadReply();
       })
