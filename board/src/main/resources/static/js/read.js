@@ -1,6 +1,23 @@
 const url = `http://localhost:8080/replies`;
 const replyList = document.querySelector(".replyList");
 
+// 날짜 / 시간
+const formatDate = (data) => {
+  const date = new Date(data);
+  // 2025/12/16 12:20
+  return (
+    date.getFullYear() +
+    "/" +
+    (date.getMonth() + 1) +
+    "/" +
+    date.getDate() +
+    " " +
+    date.getHours() +
+    ":" +
+    date.getMinutes()
+  );
+};
+
 // 댓글 목록 가져오기
 const loadReply = () => {
   fetch(`${url}/board/${bno}`)
@@ -39,24 +56,24 @@ const loadReply = () => {
             <div class="text-muted">
               <span class="small">${formatDate(reply.createDate)}</span>
             </div>
-          </div>
-  
-          <div class="d-flex flex-column align-self-center">
-            <div class="mb-2">
-              <button class="btn btn-outline-danger btn-sm">
-                삭제
-              </button>
-            </div>
-            <div class="mb-2">
-              <button class="btn btn-outline-success btn-sm">
-                수정
-              </button>
-            </div>
-          </div>
-        </div>
-      `;
-      });
+          </div>`;
 
+        if (`${loginUser}` === `${reply.replyerEmail}`) {
+          result += `<div class="d-flex flex-column align-self-center">
+              <div class="mb-2">
+                <button class="btn btn-outline-danger btn-sm">
+                  삭제
+                </button>
+              </div>
+              <div class="mb-2">
+                <button class="btn btn-outline-success btn-sm">
+                  수정
+                </button>
+              </div>
+            </div>`;
+        }
+        result += `</div>`;
+      });
       replyList.innerHTML = result;
     })
     .catch((err) => console.log(err));
@@ -64,101 +81,88 @@ const loadReply = () => {
 
 // 댓글 추가
 // 댓글 작성 클릭 시 == replyForm submit 발생 시
-document.querySelector("#replyForm").addEventListener("submit", (e) => {
-  // submit 기능 중지
-  e.preventDefault();
+if (replyForm) {
+  replyForm.addEventListener("submit", (e) => {
+    // submit 기능 중지
+    e.preventDefault();
 
-  const form = e.target;
-  const rno = form.rno.value;
-  const reply = { rno: rno, text: form.text.value, replyerEmail: form.replyerEmail.value, bno: bno };
+    const form = e.target;
+    const rno = form.rno.value;
+    const reply = { rno: rno, text: form.text.value, replyerEmail: form.replyerEmail.value, bno: bno };
 
-  if (!rno) {
-    // new
-    fetch(`${url}/new`, {
-      method: "POST",
-      headers: {
-        "X-CSRF-TOKEN": csrfVal,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(reply),
-    })
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error(`error! ${res.status}`);
-        }
-
-        // json body 추출
-        return res.json();
+    if (!rno) {
+      // new
+      fetch(`${url}/new`, {
+        method: "POST",
+        headers: {
+          "X-CSRF-TOKEN": csrfVal,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(reply),
       })
-      .then((data) => {
-        console.log(data);
-        if (data) {
-          Swal.fire({
-            title: "댓글 작성 완료",
-            icon: "success",
-            draggable: true,
-          });
-        }
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error(`error! ${res.status}`);
+          }
 
-        form.text.value = "";
-        // 댓글 가져오기
-        loadReply();
+          // json body 추출
+          return res.json();
+        })
+        .then((data) => {
+          console.log(data);
+          if (data) {
+            Swal.fire({
+              title: "댓글 작성 완료",
+              icon: "success",
+              draggable: true,
+            });
+          }
+
+          form.text.value = "";
+          // 댓글 가져오기
+          loadReply();
+        })
+        .catch((err) => console.log(err));
+    } else {
+      // modify
+      fetch(`${url}/${rno}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-TOKEN": csrfVal,
+        },
+        body: JSON.stringify(reply),
       })
-      .catch((err) => console.log(err));
-  } else {
-    // modify
-    fetch(`${url}/${rno}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(reply),
-    })
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error(`error! ${res.status}`);
-        }
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error(`error! ${res.status}`);
+          }
 
-        // json body 추출
-        return res.json();
-      })
-      .then((data) => {
-        console.log(data);
-        if (data) {
-          Swal.fire({
-            title: "댓글 수정 완료",
-            icon: "success",
-            draggable: true,
-          });
-        }
-        form.replyer.value = "";
-        form.text.value = "";
-        form.rno.value = "";
+          // json body 추출
+          return res.json();
+        })
+        .then((data) => {
+          console.log(data);
+          if (data) {
+            Swal.fire({
+              title: "댓글 수정 완료",
+              icon: "success",
+              draggable: true,
+            });
+          }
+          form.replyerEmail.value = "";
+          form.replyerName.value = "";
+          form.text.value = "";
+          form.rno.value = "";
 
-        form.rbtn.innerHTML = "댓글 작성";
-        // 댓글 가져오기
-        loadReply();
-      })
-      .catch((err) => console.log(err));
-  }
-});
-
-// 날짜 / 시간
-const formatDate = (data) => {
-  const date = new Date(data);
-  // 2025/12/16 12:20
-  return (
-    date.getFullYear() +
-    "/" +
-    (date.getMonth() + 1) +
-    "/" +
-    date.getDate() +
-    " " +
-    date.getHours() +
-    ":" +
-    date.getMinutes()
-  );
-};
+          form.rbtn.innerHTML = "댓글 작성";
+          // 댓글 가져오기
+          loadReply();
+        })
+        .catch((err) => console.log(err));
+    }
+  });
+}
 
 loadReply();
 
@@ -178,6 +182,9 @@ replyList.addEventListener("click", (e) => {
 
     fetch(`${url}/${rno}`, {
       method: "DELETE",
+      headers: {
+        "X-CSRF-TOKEN": csrfVal,
+      },
     })
       .then((res) => {
         if (!res.ok) {
@@ -195,7 +202,7 @@ replyList.addEventListener("click", (e) => {
   } else if (btn.classList.contains("btn-outline-success")) {
     // rno를 이용해 reply 가져오기
     // 가져온 reply를 replyForm에 보여주기
-    const form = document.querySelector("#replyform");
+    const form = document.querySelector("#replyForm");
     // 댓글 작성 버튼 => 댓글 수정
     fetch(`${url}/${rno}`)
       .then((res) => {
@@ -210,7 +217,8 @@ replyList.addEventListener("click", (e) => {
         console.log(data);
 
         form.rno.value = data.rno;
-        form.replyer.value = data.replyer;
+        form.replyerEmail.value = data.replyerEmail;
+        form.replyerName.value = data.replyerName;
         form.text.value = data.text;
 
         // 버튼 텍스트 변경
