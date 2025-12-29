@@ -28,14 +28,19 @@
                 <div class="flex items-center text-sm">
                   <!-- 포스터 -->
                   <div class="relative hidden w-8 h-8 mr-3 rounded-full md:block">
-                    <img class="object-cover w-full h-full rounded-full" alt="" loading="lazy" />
+                    <img
+                      class="object-cover w-full h-full rounded-full"
+                      alt=""
+                      loading="lazy"
+                      th:if="${dto.movieImages.size() > 0 && dto.movieImages[0].path != null}"
+                      th:src="|/upload/display?fileName=${dto.movieImages[0].getThumbnailURL()}|"
+                    />
                     <div class="absolute inset-0 rounded-full shadow-inner" aria-hidden="true"></div>
                   </div>
                   <div>
                     <p class="font-semibold">
                       <!-- 영화제목 -->
-                      [[${dto.title}]]
-                      <a href=""></a>
+                      <a th:href="@{read(mno=${dto.mno})}"> [[${dto.title}]] </a>
                     </p>
                   </div>
                 </div>

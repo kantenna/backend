@@ -4,6 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+      integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
   </head>
   <body>
     <h3>업로드 테스트</h3>
@@ -12,19 +19,58 @@
     </form> -->
 
     <!-- 
-        accept="image/png, image/jpeg" : 처무 파일 제한
+        accept="image/png, image/jpeg" : 첨부 파일 제한
         multiple : 한번에 여러 개 파일 선택 가능
     -->
     <input type="file" name="uploadFiles" id="" multiple accept="image/png, image/jpeg" />
     <button type="button">업로드</button>
     <div id="output"></div>
     <script>
+      // x를 클릭 시 파일 삭제(이벤트 버블링)
+      document.querySelector("#output").addEventListener("click", (e) => {
+        e.preventDefault();
+        // 이벤트 대상은 누구?
+        console.log("이벤트 대상 ", e.target); // <i class="fa-solid fa-xmark"></i>
+        // i를 감싸고 있는 a 태그 필요
+        // closest() : 가장 가까운 부모 요소 찾기
+        const aTag = e.target.closest("a");
+        const div = e.target.closest("div");
+
+        // href 값 가져오기
+        // http://localhost:8080/upload/2025%2F12%2F29%2Fe3d84be3-4ef5-4fc5-b0be-8ae25bdc088b_alien1.png
+        // console.log("속성 값 ", aTag.href);
+        // 2025%2F12%2F29%2Fe3d84be3-4ef5-4fc5-b0be-8ae25bdc088b_alien1.png
+        console.log("속성 값 ", aTag.getAttribute("href"));
+        const href = aTag.getAttribute("href");
+
+        // 컨트롤러로 요청 보내기
+        const formData = new FormData();
+        formData.append("fileName", href);
+
+        fetch("/upload/remove", {
+          method: "post",
+          body: formData,
+        })
+          .then((res) => res.text())
+          .then((data) => {
+            console.log(data);
+            // 화면에서 이미지 제거
+            div.remove();
+          });
+      });
+
       const showUploadImages = (files) => {
         const output = document.querySelector("#output");
 
+        let tags = "";
+
         files.forEach((file) => {
-          output.insertAdjacentHTML("beforeend", `<img src="/upload/display?fileName=${file.imageURL}">`);
+          tags += "<div>";
+          tags += `<img src="/upload/display?fileName=${file.thumbnailURL}">`;
+          tags += `<a href="${file.imageURL}"><i class="fa-solid fa-xmark"></i></a>`;
+          tags += "</div>";
         });
+        output.insertAdjacentHTML("beforeend", tags);
       };
 
       document.querySelector("button").addEventListener("click", () => {

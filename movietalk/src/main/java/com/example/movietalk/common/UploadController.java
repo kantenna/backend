@@ -18,6 +18,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.util.FileCopyUtils;
 
 import lombok.extern.log4j.Log4j2;
+import net.coobird.thumbnailator.Thumbnailator;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -62,13 +64,19 @@ public class UploadController {
             // 파일명
             String oriName = file.getOriginalFilename();
             
-            String saveName = uploadPath + File.separator + saveDirPath + File.separator + uuid + "_" + oriName;
-
+            // 파일 저장 정보를 화면단으로 전송하기 위한 객체
             upList.add(MovieImageDTO.builder().imgName(oriName).uuid(uuid).path(saveDirPath).build());
-
+            
             try {
+                String saveName = uploadPath + File.separator + saveDirPath + File.separator + uuid + "_" + oriName;
+                File saveFile = new File(saveName);
                 // 저장 구문
-                file.transferTo(new File(saveName));
+                file.transferTo(saveFile);
+
+                // 썸네일 저장
+                String thumbSaveName = uploadPath + File.separator + saveDirPath + File.separator + "s_" + uuid + "_" + oriName;
+                File thumbFile = new File(thumbSaveName);
+                Thumbnailator.createThumbnail(saveFile, thumbFile, 100, 100);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -93,6 +101,33 @@ public class UploadController {
         } catch (Exception e) {
             e.printStackTrace();
             result = new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        return result;
+    }
+
+    // 파일 삭제
+    @PostMapping("/remove")
+    public ResponseEntity<String> removeFile(String fileName){
+        log.info("삭제할 fimeName {}", fileName);
+        ResponseEntity<String> result = null;
+
+        try {
+            // %2F => / 해야해서 디코딩
+            String srcFileName = URLDecoder.decode(fileName, "utf-8");
+            File file = new File(uploadPath + File.separator +  srcFileName);  
+            
+            // 원본 파일 삭제
+            file.delete();
+            // 썸네일 삭제
+            File thumbFile = new File(file.getParent(), "s_" + file.getName());
+            thumbFile.delete();
+
+            result = new ResponseEntity<>("success", HttpStatus.OK);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            result = new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
         return result;

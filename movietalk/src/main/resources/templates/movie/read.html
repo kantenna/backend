@@ -17,6 +17,7 @@
                 name="title"
                 value=""
                 readonly
+                th:value="${dto.title}"
               />
             </label>
           </div>
@@ -29,6 +30,7 @@
                 name="reviewCnt"
                 value=""
                 readonly
+                th:value="${dto.reviewCnt}"
               />
             </label>
           </div>
@@ -41,12 +43,12 @@
                 name="avg"
                 value=""
                 readonly
+                th:value="${dto.avg}"
               />
             </label>
           </div>
           <div class="mt-4">
             <a
-              sec:authorize="hasRole('ADMIN')"
               href=""
               class="px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple"
               >수정</a
@@ -60,10 +62,16 @@
         </form>
       </div>
       <!-- 포스터 보여주기 -->
-      <div class="uploadResult mb-4">
+      <div class="uploadResult mb-4" th:each="img : ${dto.movieImages}">
         <ul>
           <li>
-            <img class="block" data-bs-toggle="modal" data-bs-target="#imgModal" />
+            <img
+              class="block"
+              data-bs-toggle="modal"
+              data-bs-target="#imgModal"
+              th:if="${dto.movieImages.size() > 0 && dto.movieImages[0].path != null}"
+              th:src="|/upload/display?fileName=${dto.movieImages[0].getThumbnailURL()}|"
+            />
           </li>
         </ul>
       </div>
