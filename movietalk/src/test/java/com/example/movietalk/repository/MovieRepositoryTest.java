@@ -50,6 +50,18 @@ public class MovieRepositoryTest {
     @Commit
     @Transactional
     @Test
+    public void deleteByMovieTest(){
+        Movie movie = movieRepository.findById(202L).get();
+        // 영화 이미지 삭제
+        movieImageRepository.deleteByMovie(movie);
+        // 영화 삭제
+        movieRepository.delete(movie);
+    }
+
+
+    @Commit
+    @Transactional
+    @Test
     public void deleteByMemberTest(){
         // 회원 삭제
         // 1. 회원이 작성한 리뷰 제거
