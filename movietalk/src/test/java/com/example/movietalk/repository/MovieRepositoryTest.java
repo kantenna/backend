@@ -76,9 +76,17 @@ public class MovieRepositoryTest {
         List<Review> result = reviewRepository.findByMovie(Movie.builder().mno(95L).build());
 
         result.forEach(r -> {
-            System.out.println(r);
+            // 리뷰 정보
+            System.out.print(r.getRno()+ "\t");
+            System.out.print(r.getGrade()+ "\t");
+            System.out.print(r.getText()+ "\t");
             // 리뷰 작성자 조회
-            System.out.println(r.getMember().getEmail());
+            System.out.println(r.getMember().getEmail()+ "\t");
+            System.out.println(r.getMember().getMid()+ "\t");
+            System.out.println(r.getMember().getNickname()+ "\t");
+
+            // 영화정보
+            System.out.println(r.getMovie().getMno());
         });
     }
 

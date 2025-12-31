@@ -3,9 +3,17 @@ package com.example.movietalk.movie.controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.movietalk.movie.dto.ReviewDTO;
+import com.example.movietalk.movie.service.ReviewService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
+import java.util.List;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,39 +30,56 @@ import org.springframework.web.bind.annotation.PostMapping;
 @RequiredArgsConstructor
 @RestController
 public class ReviewController {
+
+    private final ReviewService reviewService;
+
     // 특정 영화에 달려있는 모든 리뷰 가져오기 /reviews/300(mno)/all + GET
     @GetMapping("/{mno}/all")
-    public String getReviews(@PathVariable Long mno) {
-        return new String();
+    public List<ReviewDTO> getReviews(@PathVariable Long mno) {
+        log.info("특정 영화 전체 리뷰 요청 {}", mno);
+        List<ReviewDTO> list = reviewService.getList(mno); 
+
+        return list;
     }
     
     
     // 특정 영화의 리뷰 수정
     // 1) 리뷰 가져오기 /reviews/mno/rno + GET
     @GetMapping("/{mno}/{rno}")
-    public String getReview(@PathVariable Long rno) {
-        return new String();
+    public ReviewDTO getReview(@PathVariable Long rno) {
+        log.info("특정 영화 특정 리뷰 요청 {}", rno);
+        
+        return reviewService.getRow(rno);
     }
     
     // 2) 수정 /reviews/300/rno + PUT
     @PutMapping("/{mno}/{rno}")
-    public String putReview(@PathVariable Long rno, @RequestBody String entity) {
-        
-        return entity;
+    public ResponseEntity<Long> putReview(@PathVariable Long rno, @RequestBody ReviewDTO dto) {
+        log.info("특정 영화 특정 리뷰 수정 {}", dto);
+        rno = reviewService.updateRow(dto);
+
+        // 상태 코드 전송
+        return new ResponseEntity<Long>(rno, HttpStatusCode.valueOf(200));
     }
 
     // 특정 영화의 리뷰 삭제 /reviews/300/rno + DELETE
     @DeleteMapping("/{mno}/{rno}")
-    public String deleteReview(@PathVariable Long rno, @RequestBody String entity) {
-        
-        return entity;
+    public ResponseEntity<String> deleteReview(@PathVariable Long rno) {
+        log.info("특정 영화 특정 리뷰 삭제 {}", rno);
+        reviewService.deleteRow(rno);
+
+        // 상태 코드 전송
+        return new ResponseEntity<String>("success", HttpStatus.OK);
     }
 
     // 특정 영화의 리뷰 추가 /reviews/300 + POST
     @PostMapping("/{mno}")
-    public String postReview(@PathVariable Long mno) {
-        
-        return "";
+    public Long postReview(@PathVariable Long mno, @RequestBody ReviewDTO dto) {
+        log.info("특정 영화 특정 리뷰 추가 {}", dto);
+
+        Long rno = reviewService.insertRow(dto);
+
+        return rno;
     }
     
 }

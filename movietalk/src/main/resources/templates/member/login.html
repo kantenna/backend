@@ -8,7 +8,8 @@
     <div class="flex items-center justify-center p-6 sm:p-12 md:w-1/2">
       <div class="w-full">
         <h1 class="mb-4 text-xl font-semibold text-gray-700 dark:text-gray-200">Login</h1>
-        <form action="" method="post">
+        <!-- thymeleaf에서 action 사용하면 csrf 값을 자동으로 삽입해준다 -->
+        <form th:action="@{/member/login}" method="post">
           <label class="block text-sm">
             <span class="text-gray-700 dark:text-gray-400">Email</span>
             <input
