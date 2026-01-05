@@ -36,16 +36,20 @@ const reviewList = () => {
 
       let result = "";
       data.forEach((review) => {
-        result += `<div class="d-flex justify-content-between py-2 border-bottom review-row" data-rno="${review.rno}">`;
+        result += `<div class="d-flex justify-content-between py-2 border-bottom review-row" data-rno="${review.rno}" data-email="${review.email}">`;
         result += `<div class="flex-grow-1 align-self-center">`;
         result += `<div><span class="font-semibold">${review.text}</span></div>`;
         result += `<div class="small text-muted"><span class="d-inline-block mr-3">${review.nickname}</span>`;
         result += `평점 : <span class="grade">${review.grade}</span><div class="starrr"></div></div>`;
         result += `<div class="text-muted"><span class="small">${formatDate(review.createDate)}</span></div></div>`;
-        result += `<div class="d-flex flex-column align-self-center">`;
-        result += `<div class="mb-2"><button class="btn btn-outline-danger btn-sm">삭제</button></div>`;
-        result += `<div><button class="btn btn-outline-success btn-sm">수정</button></div>`;
-        result += `</div></div>`;
+        // 로그인 user == 작성자
+        if (loginUser === `${review.email}`) {
+          result += `<div class="d-flex flex-column align-self-center">`;
+          result += `<div class="mb-2"><button class="btn btn-outline-danger btn-sm">삭제</button></div>`;
+          result += `<div><button class="btn btn-outline-success btn-sm">수정</button></div>`;
+          result += `</div>`;
+        }
+        result += `</div>`;
       });
 
       reviewArea.innerHTML = result;
@@ -57,9 +61,16 @@ const reviewList = () => {
 reviewList();
 
 //---------- 특정 리뷰 삭제
-const reviewDelete = (rno) => {
+const reviewDelete = (rno, email) => {
+  const form = new FormData();
+  form.append("email", email);
+
   fetch(`${baseUrl}/${mno}/${rno}`, {
     method: "DELETE",
+    headers: {
+      "X-CSRF-TOKEN": csrfVal,
+    },
+    body: form,
   })
     .then((res) => {
       if (!res.ok) {
@@ -97,6 +108,7 @@ const reviewGet = (rno) => {
       reviewForm.rno.value = data.rno;
       reviewForm.mid.value = data.mid;
       reviewForm.mno.value = data.mno;
+      reviewForm.email.value = data.email;
       reviewForm.querySelector(".starrr a:nth-child(" + data.grade + ")").click();
     })
     .catch((e) => console.error(e));
@@ -107,10 +119,11 @@ reviewArea.addEventListener("click", (e) => {
   // 어느 버튼의 이벤트인가? 수정 or 삭제
   const btn = e.target;
   const rno = btn.closest(".review-row").dataset.rno;
+  const email = btn.closest(".review-row").dataset.email;
 
   if (btn.classList.contains("btn-outline-danger")) {
     // 삭제
-    reviewDelete(rno);
+    reviewDelete(rno, email);
   } else {
     // 수정
     reviewGet(rno);
@@ -123,12 +136,14 @@ const reviewPut = (form, rno) => {
     rno: rno,
     grade: grade,
     text: form.text.value,
+    email: form.email.value,
   };
 
   fetch(`${baseUrl}/${mno}/${rno}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
+      "X-CSRF-TOKEN": csrfVal,
     },
     body: JSON.stringify(review),
   })
@@ -144,7 +159,6 @@ const reviewPut = (form, rno) => {
       console.log("modify");
       console.log(data);
 
-      form.nickname.value = "";
       form.text.value = "";
       form.rno.value = "";
       form.mid.value = "";
@@ -156,7 +170,7 @@ const reviewPut = (form, rno) => {
 };
 const reviewPost = (form) => {
   const review = {
-    mid: 1,
+    mid: form.mid.value,
     mno: mno,
     grade: grade,
     text: form.text.value,
@@ -166,6 +180,7 @@ const reviewPost = (form) => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      "X-CSRF-TOKEN": csrfVal,
     },
     body: JSON.stringify(review),
   })
@@ -190,21 +205,23 @@ const reviewPost = (form) => {
 };
 
 // 리뷰 폼 등록 클릭 시 새로운 리뷰 등록 or 기존 리뷰 수정
-reviewForm.addEventListener("submit", (e) => {
-  e.preventDefault();
+if (reviewForm) {
+  reviewForm.addEventListener("submit", (e) => {
+    e.preventDefault();
 
-  // rno 값 존재 여부에 따라
-  const form = e.target;
-  const rno = form.rno.value;
+    // rno 값 존재 여부에 따라
+    const form = e.target;
+    const rno = form.rno.value;
 
-  if (rno) {
-    // 수정
-    reviewPut(form, rno);
-  } else {
-    // 신규
-    reviewPost(form);
-  }
-});
+    if (rno) {
+      // 수정
+      reviewPut(form, rno);
+    } else {
+      // 신규
+      reviewPost(form);
+    }
+  });
+}
 
 // 큰 이미지 보기
 const imgModal = document.getElementById("imgModal");
