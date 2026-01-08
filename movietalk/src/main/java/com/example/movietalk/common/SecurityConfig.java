@@ -34,11 +34,16 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
 
-        http.authorizeHttpRequests(authorize -> authorize.requestMatchers("/", "/js/**", "/assets/**", "/img/**").permitAll()
-            .anyRequest().permitAll());
+        http.authorizeHttpRequests(authorize -> authorize
+            .requestMatchers("/", "/js/**", "/assets/**", "/img/**").permitAll()
+            .requestMatchers("/movie/list").permitAll()
+            .requestMatchers("/movie/create").hasRole("ADMIN")
+            .requestMatchers("/member/register").permitAll()
+            .requestMatchers("/upload/display/**").permitAll()
+            .anyRequest().authenticated());
 
-        http.formLogin(login -> login.loginPage("/member/login"));
-        // .successHandler(loginSuccessHandler())
+        http.formLogin(login -> login.loginPage("/member/login").permitAll().successHandler(loginSuccessHandler()));
+        
 
         // http.oauth2Login(login -> login.successHandler(loginSuccessHandler()));
 
@@ -52,7 +57,15 @@ public class SecurityConfig {
         
         // http.rememberMe(remember -> remember.rememberMeServices(rememberMeServices));
 
+        // 접근제한 처리
+        http.exceptionHandling(e -> e.accessDeniedHandler(customAccessDeniedHandler()));
+
         return http.build();
+    }
+
+    @Bean
+    CustomAccessDeniedHandler customAccessDeniedHandler(){
+        return new CustomAccessDeniedHandler();
     }
 
     // @Bean
@@ -69,10 +82,10 @@ public class SecurityConfig {
     //     return services;
     // }
 
-    // @Bean
-    // LoginSuccessHandler loginSuccessHandler() {
-    //     return new LoginSuccessHandler();
-    // }
+    @Bean
+    LoginSuccessHandler loginSuccessHandler() {
+        return new LoginSuccessHandler();
+    }
 
     @Bean
     PasswordEncoder passwordEncoder() {

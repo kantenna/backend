@@ -32,9 +32,11 @@
                       class="object-cover w-full h-full rounded-full"
                       alt=""
                       loading="lazy"
-                      th:if="${dto.movieImages.size() > 0 && dto.movieImages[0].path != null}"
+                      
+                      th:if="${dto.movieImages != null and !#lists.isEmpty(dto.movieImages)}"
                       th:src="|/upload/display?fileName=${dto.movieImages[0].getThumbnailURL()}|"
                     />
+                    <!-- th:if="${dto.movieImages.size() > 0 && dto.movieImages[0].path != null}" -->
                     <div class="absolute inset-0 rounded-full shadow-inner" aria-hidden="true"></div>
                   </div>
                   <div>

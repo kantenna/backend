@@ -20,6 +20,7 @@ configurations {
 	}
 }
 
+// 라이브러리 다운받을 곳
 repositories {
 	mavenCentral()
 }
