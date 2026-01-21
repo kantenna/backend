@@ -26,6 +26,8 @@ repositories {
 }
 
 dependencies {
+	// 3.x => spring boot 4.x 버전만 가능
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.15'
 	// thymeleaf 레이아웃 상속
 	implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.4.0'
 	// querydsl
