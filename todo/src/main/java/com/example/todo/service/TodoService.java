@@ -45,8 +45,15 @@ public class TodoService {
     }
 
     @Transactional(readOnly = true)
-    public List<TodoDTO> findCompletedTodos(boolean completed) {
-        List<Todo> result = todoRepository.findByCompleted(completed);
+    public List<TodoDTO> findCompletedTodos(Boolean completed) {
+        List<Todo> result = null;
+
+        if (completed == null) {
+            result = todoRepository.findAll();
+        } else {
+            result = todoRepository.findByCompleted(completed);
+        }
+
         // entity => dto
         return result.stream().map(todo -> modelMapper.map(todo, TodoDTO.class)).collect(Collectors.toList());
     }
@@ -58,10 +65,4 @@ public class TodoService {
         return result.stream().map(todo -> modelMapper.map(todo, TodoDTO.class)).collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
-    public List<TodoDTO> findTodos() {
-        List<Todo> result = todoRepository.findAll();
-        // entity => dto
-        return result.stream().map(todo -> modelMapper.map(todo, TodoDTO.class)).collect(Collectors.toList());
-    }
 }
