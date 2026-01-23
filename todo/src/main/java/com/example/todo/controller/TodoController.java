@@ -3,6 +3,8 @@ package com.example.todo.controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.todo.dto.PageRequestDTO;
+import com.example.todo.dto.PageResultDTO;
 import com.example.todo.dto.TodoDTO;
 import com.example.todo.service.TodoService;
 
@@ -40,9 +42,10 @@ public class TodoController {
     // @CrossOrigin(origins = "http://localhost:5173/") : 컨트롤러 단위로 cors 설정
     @Operation(summary = "todo 조회", description = "todo 전체 조회 API / 완료 여부 포함 가능")
     @GetMapping("")
-    public List<TodoDTO> getTodoList(@RequestParam(required = false) Boolean completed) {
+    public PageResultDTO<TodoDTO> getTodoList(@RequestParam(required = false) Boolean completed, PageRequestDTO dto) {
         log.info("조회");
-        return todoService.findCompletedTodos(completed);
+        PageResultDTO<TodoDTO> result = todoService.findCompletedTodos(completed, dto);
+        return result;
     }
 
     // 입력 http://localhost:8080/todos/add + POST

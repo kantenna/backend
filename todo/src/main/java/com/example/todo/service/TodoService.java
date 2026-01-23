@@ -4,9 +4,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.todo.dto.PageRequestDTO;
+import com.example.todo.dto.PageResultDTO;
 import com.example.todo.dto.TodoDTO;
 import com.example.todo.entity.Todo;
 import com.example.todo.repository.TodoRepository;
@@ -45,17 +51,29 @@ public class TodoService {
     }
 
     @Transactional(readOnly = true)
-    public List<TodoDTO> findCompletedTodos(Boolean completed) {
-        List<Todo> result = null;
+    public PageResultDTO<TodoDTO> findCompletedTodos(Boolean completed, PageRequestDTO dto) {
+        Page<Todo> result = null;
+
+        // react 요청 => react 페이지 나누기 라이브러리 사용(-1을 화면단에서 처리해줌)
+        Pageable pageable = PageRequest.of(dto.getPage(), dto.getSize(), Sort.by("id").descending());
 
         if (completed == null) {
-            result = todoRepository.findAll();
+            result = todoRepository.findAll(pageable);
         } else {
-            result = todoRepository.findByCompleted(completed);
+            result = todoRepository.findByCompleted(completed, pageable);
         }
 
         // entity => dto
-        return result.stream().map(todo -> modelMapper.map(todo, TodoDTO.class)).collect(Collectors.toList());
+        List<TodoDTO> dtoList = result.stream().map(todo -> modelMapper.map(todo, TodoDTO.class))
+                .collect(Collectors.toList());
+
+        Long totalCount = result.getTotalElements();
+
+        return PageResultDTO.<TodoDTO>withAll()
+                .dtoList(dtoList)
+                .totalCount(totalCount)
+                .pageRequestDTO(dto)
+                .build();
     }
 
     @Transactional(readOnly = true)

@@ -5,6 +5,9 @@ import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import com.example.todo.entity.Todo;
 
@@ -16,7 +19,7 @@ public class TodoRepositoryTest {
 
     @Test
     public void insertTest() {
-        IntStream.rangeClosed(1, 30).forEach(i -> {
+        IntStream.rangeClosed(1, 100).forEach(i -> {
             Todo todo = Todo.builder()
                     .title("오늘의 할 일" + i)
                     .completed(i % 2 == 0 ? true : false)
@@ -35,7 +38,8 @@ public class TodoRepositoryTest {
     // 완료 여부에 따른 조회
     @Test
     public void readAllTest2() {
-        todoRepository.findByCompleted(true)
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("id").descending());
+        todoRepository.findByCompleted(true, pageable)
                 .forEach(todo -> System.out.println(todo));
     }
 }
